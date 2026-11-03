@@ -36,9 +36,9 @@ o endpoint original. O H2 é dependência apenas de teste.
 ## Critério de pronto
 
 - [x] PR no próprio fork com SQL Injection reproduzível: [PR #1](https://github.com/viiihbastos/gnews/pull/1).
-- [x] Testes locais Java 25 aprovados: 3 testes, zero falhas (`mvn verify`).
-- [ ] Comentário real do bot com análise da falha.
-- [ ] Análise crítica: precisão, explicação, correção sugerida e falsos positivos.
+- [x] Testes Java 25 aprovados localmente e no GitHub Actions: 4 testes, zero falhas (`mvn verify`).
+- [x] Comentário real do bot com análise da falha.
+- [x] Análise crítica: precisão, explicação, correção sugerida e falsos positivos.
 - [ ] Link do PR entregue no portal FIAP por Victor.
 
 Registrar os links e resultados reais após a execução; não tratar ausência de
@@ -56,17 +56,66 @@ Esses testes caracterizam a falha intencional; testes verdes **não significam**
 que a branch é segura. A classe não está conectada ao endpoint HTTP. O revisor
 deve identificar o risco no adaptador sem afirmar que há exploração remota ativa.
 
-## Análise crítica — preencher após o bot
+## Resultado da revisão automática — 03/11/2026
 
-- Precisão: pendente de comentário real do agente.
-- Didática: conferir se explica a concatenação e sugere `PreparedStatement`.
-- Falsos positivos: conferir se evita afirmar endpoint exposto ou dados reais.
-- Limitações: apenas diff Java de produção; testes e documentação não entram na
-  chamada da IA. Uma detecção correta neste exemplo não mede cobertura geral.
-- Prompt injection extra: não executado; é desafio opcional do enunciado.
-- Se a revisão falhar: distinguir credencial/quota/formato de resposta de erro
-  de análise; não apresentar erro de infraestrutura como aprovação de segurança.
+- [PR de entrega](https://github.com/viiihbastos/gnews/pull/1).
+- [Comentário inline do agente](https://github.com/viiihbastos/gnews/pull/1#discussion_r4455127798).
+- [Revisão publicada pelo github-actions[bot]](https://github.com/viiihbastos/gnews/pull/1#pullrequestreview-5752769116).
+- [Execução com revisão e testes aprovados](https://github.com/viiihbastos/gnews/actions/runs/41642188072).
+- Commit de código analisado: `a768aaab16c77a95f4dd4649cd8a643e5648ace5`.
+- Modelo efetivo: `gemini-3.5-flash-lite`; projeto Google Free tier, sem faturamento vinculado.
+- Resultado: um comentário com identificação de SQL Injection e exemplo corrigido.
 
-O projeto Google `FIAP Code Review` foi criado na faixa gratuita, sem vincular
-faturamento. A criação da chave e seu cadastro no GitHub aguardam confirmação.
-Não houve submissão no portal FIAP.
+### Precisão
+
+A IA identificou corretamente a concatenação de `userInput` na consulta executada
+por `Statement`. O teste com H2 comprova que o payload altera a condição de busca e
+retorna ambos os artigos. Portanto, o achado central é um verdadeiro positivo.
+O teste adicional valida que uma conexão ausente é rejeitada no construtor.
+
+### Didática e correção
+
+O comentário descreve causa e risco, reproduz a linha vulnerável e mostra uma
+correção completa com `connection.prepareStatement(query)`, placeholder `?` e
+`setString(1, userInput)`, preservando o fechamento de recursos. O controle
+parametrizado do teste confirma que esse mecanismo trata o payload como texto.
+
+A action posicionou o comentário no final do hunk do arquivo adicionado, e não
+exatamente na linha da concatenação. O trecho vulnerável está identificado no
+texto, mas a localização inline poderia ser mais precisa.
+
+### Falsos positivos e calibração de impacto
+
+Não houve outro achado além da injeção. A IA reconheceu que a exposição a dados de
+usuário é condicional; o adaptador continua sem conexão ao endpoint HTTP.
+Classificou a vulnerabilidade como crítica e citou leitura, modificação e exclusão
+de dados. Neste experimento foi comprovada **apenas a leitura de linhas indevidas**.
+Escrita/exclusão dependeriam do banco, das permissões e do suporte a comandos
+adicionais; não foram testadas. Logo, a falha é real, mas a gravidade operacional
+e todos os impactos mencionados não podem ser inferidos deste exemplo isolado.
+
+### Limites e problemas encontrados
+
+- Só o diff de Java em `src/main` foi enviado. Não houve auditoria integral do
+  repositório, teste de exploração remota ou medição de precisão em vários casos.
+- A action lê arquivos alterados desde a última revisão/atualização. Uma execução
+  anterior, restrita a documentação, terminou verde sem comentário: foi necessário
+  conferir o comentário real, não apenas o status do workflow.
+- A primeira chamada com `gemini-2.5-flash` retornou HTTP 404 no projeto novo.
+  A [documentação de descontinuação](https://aistudio.google.com/docs/deprecations)
+  limita esse modelo a usuários anteriores. Foi substituído por uma versão estável
+  atual, [Gemini 3.5 Flash-Lite](https://aistudio.google.com/docs/models/gemini-3.5-flash-lite),
+  com [faixa gratuita documentada](https://aistudio.google.com/docs/pricing#gemini-3.5-flash-lite).
+- Falta de secret e indisponibilidade do modelo foram falhas de infraestrutura,
+  não evidências de que a IA aprovou ou deixou passar a vulnerabilidade.
+- O desafio extra de prompt injection é opcional e não foi executado. Há instrução
+  defensiva no prompt, mas sua eficácia não foi comprovada por este teste.
+- O review é do tipo comentário: nenhuma regra de proteção de branch foi instalada.
+  Revisão humana continua necessária; não há integração ou implantação automática.
+
+## Entrega no portal
+
+O requisito técnico foi obtido. Revisar este material e enviar **somente o link do
+PR** na atividade IA no Pipeline - Code Review (ID 63653), com prazo 03/11/2026.
+O horário limite não estava informado na consulta ao portal. Não houve submissão
+acadêmica automática. Manter este PR aberto, com a falha proposital, como evidência.
