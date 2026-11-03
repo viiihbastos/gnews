@@ -1,6 +1,7 @@
 package com.gnews.fake.repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatNullPointerException;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -29,6 +30,11 @@ class JdbcArticleSearchTest {
         if (connection != null) {
             connection.close();
         }
+    }
+
+    @Test
+    void rejectsMissingConnectionAtConstruction() {
+        assertThatNullPointerException().isThrownBy(() -> new JdbcArticleSearch(null));
     }
 
     @Test

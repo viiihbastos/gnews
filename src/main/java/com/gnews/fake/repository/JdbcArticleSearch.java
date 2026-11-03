@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Experimental JDBC search adapter; not wired into the HTTP application.
@@ -13,7 +14,7 @@ public final class JdbcArticleSearch {
     private final Connection connection;
 
     public JdbcArticleSearch(Connection connection) {
-        this.connection = connection;
+        this.connection = Objects.requireNonNull(connection, "connection");
     }
 
     public List<String> findByTitle(String userInput) throws SQLException {
