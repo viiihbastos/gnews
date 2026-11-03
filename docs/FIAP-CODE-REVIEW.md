@@ -13,7 +13,7 @@ A vulnerabilidade é proposital para avaliação: **não fazer merge nem publica
 
 - Testes Maven em Java 25, separados do job que recebe a chave da IA.
 - Revisor `anc95/ChatGPT-CodeReview`, como no roteiro, fixado em commit imutável.
-- Gemini 2.5 Flash pela API compatível com OpenAI; o modelo é Gemini apesar do
+- Gemini 3.5 Flash-Lite pela API compatível com OpenAI; o modelo é Gemini apesar do
   nome da action e do título padrão “Code review by ChatGPT” que ela publica.
 - Chave somente no secret `GEMINI_API_KEY`. Usar um projeto sem faturamento;
   assinatura ChatGPT/Claude não substitui crédito ou acesso à API.

@@ -51,12 +51,12 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           OPENAI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           OPENAI_API_ENDPOINT: https://generativelanguage.googleapis.com/v1beta/openai/
-          MODEL: gemini-2.5-flash
+          MODEL: gemini-3.5-flash-lite
           LANGUAGE: Portuguese
           INCLUDE_PATTERNS: '**/src/main/**/*.java'
           MAX_PATCH_LENGTH: '16000'
           max_tokens: '6000'
-          temperature: '0.1'
+          temperature: '1'
           PROMPT: |
             Você é um revisor DevSecOps. Revise o diff de Java 25 / Spring Boot 3.5.
             Procure vulnerabilidades OWASP, especialmente SQL Injection, bugs e
