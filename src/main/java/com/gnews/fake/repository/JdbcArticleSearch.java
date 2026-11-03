@@ -5,7 +5,10 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Experimental JDBC search adapter; not wired into the HTTP application. */
+/**
+ * Experimental JDBC search adapter; not wired into the HTTP application.
+ * The caller owns the connection lifecycle.
+ */
 public final class JdbcArticleSearch {
     private final Connection connection;
 
