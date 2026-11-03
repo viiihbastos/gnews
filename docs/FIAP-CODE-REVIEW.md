@@ -28,18 +28,45 @@ A vulnerabilidade é proposital para avaliação: **não fazer merge nem publica
 
 ## Adaptação do exercício
 
-O GNews original armazena artigos em memória, sem JDBC. A demonstração adicionará
+O GNews original armazena artigos em memória, sem JDBC. A demonstração adiciona
 um adaptador experimental de busca JDBC isolado e testes com banco H2 em memória.
 Isso permite reproduzir a injeção sem criar serviço público vulnerável nem mudar
-o endpoint original. O H2 será dependência apenas de teste.
+o endpoint original. O H2 é dependência apenas de teste.
 
 ## Critério de pronto
 
-- [ ] PR no próprio fork com SQL Injection reproduzível.
-- [ ] Testes Java 25 aprovados.
+- [x] PR no próprio fork com SQL Injection reproduzível: [PR #1](https://github.com/viiihbastos/gnews/pull/1).
+- [x] Testes locais Java 25 aprovados: 3 testes, zero falhas (`mvn verify`).
 - [ ] Comentário real do bot com análise da falha.
 - [ ] Análise crítica: precisão, explicação, correção sugerida e falsos positivos.
 - [ ] Link do PR entregue no portal FIAP por Victor.
 
 Registrar os links e resultados reais após a execução; não tratar ausência de
 comentário ou falha de autenticação como revisão aprovada.
+
+## Evidência técnica já obtida
+
+`JdbcArticleSearchTest` usa H2 em memória com somente dois registros sintéticos.
+Entrada normal `Java 25`: um resultado. Entrada inexistente: nenhum resultado.
+Entrada `' OR '1'='1`: ambos os resultados; a entrada alterou a estrutura da consulta.
+O controle com `PreparedStatement` e `setString(1, payload)` retorna zero linhas,
+pois trata o payload como valor, sem interpretar sua sintaxe SQL.
+
+Esses testes caracterizam a falha intencional; testes verdes **não significam**
+que a branch é segura. A classe não está conectada ao endpoint HTTP. O revisor
+deve identificar o risco no adaptador sem afirmar que há exploração remota ativa.
+
+## Análise crítica — preencher após o bot
+
+- Precisão: pendente de comentário real do agente.
+- Didática: conferir se explica a concatenação e sugere `PreparedStatement`.
+- Falsos positivos: conferir se evita afirmar endpoint exposto ou dados reais.
+- Limitações: apenas diff Java de produção; testes e documentação não entram na
+  chamada da IA. Uma detecção correta neste exemplo não mede cobertura geral.
+- Prompt injection extra: não executado; é desafio opcional do enunciado.
+- Se a revisão falhar: distinguir credencial/quota/formato de resposta de erro
+  de análise; não apresentar erro de infraestrutura como aprovação de segurança.
+
+O projeto Google `FIAP Code Review` foi criado na faixa gratuita, sem vincular
+faturamento. A criação da chave e seu cadastro no GitHub aguardam confirmação.
+Não houve submissão no portal FIAP.
